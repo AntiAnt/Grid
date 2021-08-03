@@ -49,55 +49,26 @@ print("Using {} device".format(device))
 # In[7]:
 
 
-class CNNModel(nn.Module):
+# Define model
+class NeuralNetwork(nn.Module):
     def __init__(self):
-        super(CNNModel, self).__init__()
-
-        # Convolution 1
-        self.cnn1 = nn.Conv2d(in_channels=1, out_channels=config.channels_one, kernel_size=5, stride=1, padding=0)
-        self.relu1 = nn.ReLU()
-        # Max pool 1
-        self.maxpool1 = nn.MaxPool2d(kernel_size=2)
-
-        # Convolution 2
-        self.cnn2 = nn.Conv2d(in_channels=config.channels_one, out_channels=config.channels_two, kernel_size=5, stride=1, padding=0)
-        self.relu2 = nn.ReLU()
-
-        # Max pool 2
-        self.maxpool2 = nn.MaxPool2d(kernel_size=2)
-
-        self.dropout = nn.Dropout(p=config.dropout)
-
-        # Fully connected 1 (readout)
-        self.fc1 = nn.Linear(config.channels_two*4*4, 10)
+        super(NeuralNetwork, self).__init__()
+        self.flatten = nn.Flatten()
+        self.linear_relu_stack = nn.Sequential(
+            nn.Linear(28*28, 512),
+            nn.ReLU(),
+            nn.Linear(512, 512),
+            nn.ReLU(),
+            nn.Linear(512, 10),
+            nn.ReLU()
+        )
 
     def forward(self, x):
-        # Convolution 1
-        out = self.cnn1(x)
-        out = self.relu1(out)
+        x = self.flatten(x)
+        logits = self.linear_relu_stack(x)
+        return logits
 
-        # Max pool 1
-        out = self.maxpool1(out)
-
-        # Convolution 2
-        out = self.cnn2(out)
-        out = self.relu2(out)
-
-        # Max pool 2
-        out = self.maxpool2(out)
-
-        # Resize
-        # Original size: (100, 32, 7, 7)
-        # out.size(0): 100
-        # New out size: (100, 32*7*7)
-        out = out.view(out.size(0), -1)
-        out = self.dropout(out)
-        # Linear function (readout)
-        out = self.fc1(out)
-
-        return out
-
-model = CNNModel().to(device)
+model = NeuralNetwork().to(device)
 print(model)
 
 
@@ -136,7 +107,7 @@ def test(dataloader, model, loss_fn):
     test_loss /= num_batches
     correct /= size
     print(f"Test Error: \n Accuracy: {(100*correct):>0.1f}%, Avg loss: {test_loss:>8f} \n")
-    
+
 epochs = 10
 for t in range(epochs):
     print(f"Epoch {t+1}\n-------------------------------")
