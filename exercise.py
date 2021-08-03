@@ -7,7 +7,6 @@
 import torch
 from torch import nn
 from torch.utils.data import DataLoader
-import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from fastai.vision.all import *
 from fastbook import *
@@ -99,17 +98,6 @@ stack = stack_tensors(tensors)
 
 
 cat_stack = cat(stack)
-
-
-# In[10]:
-
-
-plt.imshow(cat_stack[1][0].permute(1, 2, 0))
-
-
-# In[11]:
-
-
 cat_stack[0]
 
 
