@@ -1,12 +1,28 @@
 
 import torch
+import argparse
 from torch import nn
 from torch.utils.data import DataLoader
 from torchvision import datasets
 from torchvision.transforms import ToTensor, Lambda, Compose
 
 
+lr = 0.01
+batch_size = 64
 
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--lr', type=float)
+    parser.add_argument('--bs', type=int)
+    args = parser.parse_args()
+    
+    if args.lr:
+        lr = args.lr
+    if args.bs:
+        batch_size = args.bs
+    
+    
 training_data = datasets.FashionMNIST(
     root="data",
     train=True,
@@ -23,11 +39,6 @@ test_data = datasets.FashionMNIST(
 )
 
 
-# In[4]:
-
-
-batch_size = 64
-
 # Create data loaders.
 train_dataloader = DataLoader(training_data, batch_size=batch_size)
 test_dataloader = DataLoader(test_data, batch_size=batch_size)
@@ -38,18 +49,11 @@ for X, y in test_dataloader:
     break
 
 
-# In[5]:
-
-
 device = "cuda" if torch.cuda.is_available() else "cpu"
 print("Using {} device".format(device))
 
 
-
-# In[7]:
-
-
-# Define model
+# model
 class NeuralNetwork(nn.Module):
     def __init__(self):
         super(NeuralNetwork, self).__init__()
@@ -71,9 +75,10 @@ class NeuralNetwork(nn.Module):
 model = NeuralNetwork().to(device)
 print(model)
 
+print(f'learning rate: {lr}\nbatch size: {batch_size}')
 
 loss_fn = nn.CrossEntropyLoss()
-optimizer = torch.optim.SGD(model.parameters(), lr=1e-3)
+optimizer = torch.optim.SGD(model.parameters(), lr=lr)
 
 def train(dataloader, model, loss_fn, optimizer):
     size = len(dataloader.dataset)
@@ -114,10 +119,3 @@ for t in range(epochs):
     train(train_dataloader, model, loss_fn, optimizer)
     test(test_dataloader, model, loss_fn)
 print("Done!")
-
-
-# In[ ]:
-
-
-
-
